@@ -1,3 +1,9 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+st.set_page_config(page_title="Snap 'n' Savoury", layout="centered")
+
+html_code = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,176 +11,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Snap 'n' Savoury — Culinary Photo Scavenger Hunt</title>
   <style>
-    :root {
-      --bg: #1c1917;
-      --card: #292524;
-      --accent: #f97316;
-      --accent-hover: #ea580c;
-      --text: #fafaf9;
-      --muted: #a8a29e;
-      --success: #22c55e;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 16px;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 440px;
-      background: var(--card);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #44403c;
-      padding-bottom: 12px;
-    }
-
-    h1 {
-      font-size: 1.3rem;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-    }
-
-    .stats {
-      display: flex;
-      gap: 12px;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .badge {
-      background: #44403c;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-
-    .prompt-box {
-      background: #1c1917;
-      border: 2px dashed var(--accent);
-      border-radius: 14px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .prompt-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .prompt-text {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .viewfinder {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      background: #0c0a09;
-      border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    video, canvas, img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    button, .file-label {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-      transition: background 0.2s;
-    }
-
-    button:hover, .file-label:hover {
-      background: var(--accent-hover);
-    }
-
-    button.secondary {
-      background: #44403c;
-    }
-
-    button.secondary:hover {
-      background: #57534e;
-    }
-
-    button.success {
-      background: var(--success);
-      color: #052e16;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .row > * {
-      flex: 1;
-    }
-
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .gallery img {
-      aspect-ratio: 1 / 1;
-      border-radius: 8px;
-      border: 2px solid #44403c;
-    }
+    :root { --bg: #1c1917; --card: #292524; --accent: #f97316; --accent-hover: #ea580c; --text: #fafaf9; --muted: #a8a29e; --success: #22c55e; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 16px; }
+    .app-container { width: 100%; max-width: 440px; background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; gap: 16px; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #44403c; padding-bottom: 12px; }
+    h1 { font-size: 1.3rem; color: var(--accent); letter-spacing: -0.5px; }
+    .stats { display: flex; gap: 12px; font-weight: 700; font-size: 0.95rem; }
+    .badge { background: #44403c; padding: 4px 10px; border-radius: 999px; }
+    .prompt-box { background: #1c1917; border: 2px dashed var(--accent); border-radius: 14px; padding: 16px; text-align: center; }
+    .prompt-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+    .prompt-text { font-size: 1.25rem; font-weight: 800; color: #fff; }
+    .viewfinder { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #0c0a09; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    video, canvas, img { width: 100%; height: 100%; object-fit: cover; }
+    .hidden { display: none !important; }
+    .controls { display: flex; flex-direction: column; gap: 10px; }
+    button, .file-label { background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; transition: background 0.2s; }
+    button:hover, .file-label:hover { background: var(--accent-hover); }
+    button.secondary { background: #44403c; }
+    button.secondary:hover { background: #57534e; }
+    button.success { background: var(--success); color: #052e16; }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; }
+    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+    .gallery img { aspect-ratio: 1 / 1; border-radius: 8px; border: 2px solid #44403c; }
   </style>
 </head>
 <body>
-
   <div class="app-container">
     <header>
       <h1>📸 Snap 'n' Savoury</h1>
@@ -184,13 +47,11 @@
       </div>
     </header>
 
-    <!-- Active Challenge Prompt -->
     <div class="prompt-box">
       <div class="prompt-label">Your Savoury Target</div>
       <div class="prompt-text" id="promptText">Press Start to Hunt!</div>
     </div>
 
-    <!-- Camera / Photo Preview -->
     <div class="viewfinder">
       <video id="video" autoplay playsinline class="hidden"></video>
       <canvas id="canvas" class="hidden"></canvas>
@@ -199,10 +60,8 @@
       </div>
     </div>
 
-    <!-- Game Buttons -->
     <div class="controls">
       <button id="startBtn">Start 60-Second Hunt</button>
-
       <div id="activeControls" class="hidden controls">
         <button id="snapBtn">📸 Snap Dish!</button>
         <div class="row">
@@ -213,14 +72,12 @@
           </label>
         </div>
       </div>
-
       <div id="confirmControls" class="hidden row">
         <button id="retakeBtn" class="secondary">Retake</button>
         <button id="claimBtn" class="success">Claim +100 Pts!</button>
       </div>
     </div>
 
-    <!-- Captured Snaps Gallery -->
     <div>
       <div class="prompt-label">Captured Dishes</div>
       <div class="gallery" id="gallery"></div>
@@ -255,7 +112,6 @@
     const timerEl = document.getElementById("timer");
     const scoreEl = document.getElementById("score");
     const gallery = document.getElementById("gallery");
-
     const startBtn = document.getElementById("startBtn");
     const activeControls = document.getElementById("activeControls");
     const confirmControls = document.getElementById("confirmControls");
@@ -265,20 +121,15 @@
     const claimBtn = document.getElementById("claimBtn");
     const fileInput = document.getElementById("fileInput");
 
-    // Pick a random prompt
     function nextPrompt() {
       const available = PROMPTS.filter(p => p !== currentPrompt);
       currentPrompt = available[Math.floor(Math.random() * available.length)];
       promptText.textContent = currentPrompt;
     }
 
-    // Start webcam if available
     async function initCamera() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false
-        });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
         video.srcObject = stream;
         video.classList.remove("hidden");
         placeholder.classList.add("hidden");
@@ -287,17 +138,14 @@
       }
     }
 
-    // Stamp photo with game branding & prompt
     function stampPhoto(sourceElement, width, height) {
       canvas.width = width;
       canvas.height = height;
       ctx.drawImage(sourceElement, 0, 0, width, height);
 
-      // Dark gradient bar at bottom
       ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
       ctx.fillRect(0, height - 60, width, 60);
 
-      // Stamp text
       ctx.fillStyle = "#f97316";
       ctx.font = "bold 18px sans-serif";
       ctx.fillText("SNAP 'N' SAVOURY", 14, height - 34);
@@ -309,27 +157,22 @@
       video.classList.add("hidden");
       placeholder.classList.add("hidden");
       canvas.classList.remove("hidden");
-
       activeControls.classList.add("hidden");
       confirmControls.classList.remove("hidden");
     }
 
-    // Start Game
     startBtn.addEventListener("click", async () => {
       score = 0;
       timeLeft = 60;
       scoreEl.textContent = score;
       timerEl.textContent = timeLeft;
       gallery.innerHTML = "";
-
       startBtn.classList.add("hidden");
       activeControls.classList.remove("hidden");
       confirmControls.classList.add("hidden");
       canvas.classList.add("hidden");
-
       await initCamera();
       nextPrompt();
-
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         timeLeft--;
@@ -338,7 +181,6 @@
       }, 1000);
     });
 
-    // Snap from live video
     snapBtn.addEventListener("click", () => {
       if (!stream) {
         alert("No live camera detected. Use the 'Upload Photo' button instead!");
@@ -347,7 +189,6 @@
       stampPhoto(video, video.videoWidth || 640, video.videoHeight || 480);
     });
 
-    // Upload fallback for desktop/no-camera testing
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -358,14 +199,12 @@
       img.src = URL.createObjectURL(file);
     });
 
-    // Skip current prompt
     skipBtn.addEventListener("click", () => {
       timeLeft = Math.max(0, timeLeft - 5);
       timerEl.textContent = timeLeft;
       nextPrompt();
     });
 
-    // Retake photo
     retakeBtn.addEventListener("click", () => {
       canvas.classList.add("hidden");
       if (stream) {
@@ -377,8 +216,41 @@
       activeControls.classList.remove("hidden");
     });
 
-    // Claim points and save to gallery
     claimBtn.addEventListener("click", () => {
       score += 100;
       scoreEl.textContent = score;
+
+      const img = document.createElement("img");
+      img.src = canvas.toDataURL("image/png");
+      gallery.prepend(img);
+
+      canvas.classList.add("hidden");
+      if (stream) {
+        video.classList.remove("hidden");
+      } else {
+        placeholder.classList.remove("hidden");
+      }
+      confirmControls.classList.add("hidden");
+      activeControls.classList.remove("hidden");
+
+      nextPrompt();
+    });
+
+    function endGame() {
+      clearInterval(timerInterval);
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      video.classList.add("hidden");
+      canvas.classList.add("hidden");
+      placeholder.classList.remove("hidden");
+      placeholder.textContent = `Time's up! Final Score: ${score} pts`;
+      promptText.textContent = "Hunt Complete!";
+      activeControls.classList.add("hidden");
+      confirmControls.classList.add("hidden");
+      startBtn.textContent = "Play Again";
+      startBtn.classList.remove("hidden");
+    }
+
 
