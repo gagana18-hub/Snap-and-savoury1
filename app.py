@@ -12,8 +12,13 @@ html_code = """
   <title>Snap n Savoury — Culinary Photo Scavenger Hunt</title>
   <style>
     :root {
-      --bg: #1c1917; --card: #292524; --accent: #f97316;
-      --accent-hover: #ea580c; --text: #fafaf9; --muted: #a8a29e; --success: #22c55e;
+      --bg: #1c1917;
+      --card: #292524;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --text: #fafaf9;
+      --muted: #a8a29e;
+      --success: #22c55e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 16px; }
@@ -46,23 +51,23 @@ html_code = """
     button.success { background: var(--success); color: #052e16; }
     .row { display: flex; gap: 10px; }
     .row > * { flex: 1; }
-    
-    /* Results Grid */
-    .results-header {
-      font-size: 1.05rem; font-weight: 700; color: var(--accent);
-      text-align: center; margin-bottom: 10px;
+
+    /* End-of-game Question & Results */
+    .question-box {
+      background: #1c1917; border: 2px solid var(--accent); border-radius: 14px;
+      padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 12px;
     }
-    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .photo-card {
-      background: #1c1917; border: 1px solid #44403c; border-radius: 10px;
+    .question-text { font-size: 1.1rem; font-weight: 800; color: #fff; }
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+    .gallery-item {
+      background: #1c1917; border: 2px solid #44403c; border-radius: 10px;
       overflow: hidden; display: flex; flex-direction: column;
     }
-    .photo-card img { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; }
-    .download-btn {
-      display: block; text-align: center; padding: 8px; background: #44403c;
-      color: #fff; text-decoration: none; font-size: 0.8rem; font-weight: 600;
+    .gallery-item img { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; }
+    .gallery-caption {
+      font-size: 0.75rem; padding: 6px 8px; color: var(--text);
+      background: #0c0a09; text-align: center; font-weight: 600;
     }
-    .download-btn:hover { background: var(--accent); }
   </style>
 </head>
 <body>
@@ -80,7 +85,7 @@ html_code = """
       <div class="prompt-text" id="promptText">Press Start to Hunt!</div>
     </div>
 
-    <div class="viewfinder" id="viewfinderBox">
+    <div class="viewfinder">
       <video id="video" autoplay playsinline class="hidden"></video>
       <canvas id="canvas" class="hidden"></canvas>
       <div id="placeholder" style="color: var(--muted); text-align: center; padding: 20px;">
@@ -107,11 +112,18 @@ html_code = """
       </div>
     </div>
 
-    <!-- End-of-game Results Section -->
-    <div id="gallerySection" class="hidden">
-      <div class="results-header" id="resultsTitle">Do you want to see the pictures you snapped?</div>
-      <button id="revealBtn" class="success" style="width: 100%; margin-bottom: 12px;">👀 View Pictures I Clicked (<span id="dishCount">0</span>)</button>
-      <div class="gallery hidden" id="gallery"></div>
+    <!-- End-of-game Question Box -->
+    <div id="questionBox" class="question-box hidden">
+      <div class="question-text">Do you want to see the pics u snapped?</div>
+      <button id="yesBtn" class="success">Yes</button>
+    </div>
+
+    <!-- Instant Results Gallery -->
+    <div id="resultsSection" class="hidden">
+      <div class="prompt-label" style="text-align: center; font-size: 0.85rem; color: var(--accent);">
+        Your Snapped Savouries (<span id="picCount">0</span>)
+      </div>
+      <div class="gallery" id="gallery"></div>
     </div>
   </div>
 
@@ -128,7 +140,7 @@ html_code = """
     let timerInterval = null;
     let currentPrompt = "";
     let stream = null;
-    let capturedPhotos = []; // Stores actual image data URLs
+    let snappedPics = [];
 
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
@@ -146,10 +158,11 @@ html_code = """
     const retakeBtn = document.getElementById("retakeBtn");
     const claimBtn = document.getElementById("claimBtn");
     const fileInput = document.getElementById("fileInput");
-    const gallerySection = document.getElementById("gallerySection");
-    const revealBtn = document.getElementById("revealBtn");
-    const dishCount = document.getElementById("dishCount");
-    const resultsTitle = document.getElementById("resultsTitle");
+
+    const questionBox = document.getElementById("questionBox");
+    const yesBtn = document.getElementById("yesBtn");
+    const resultsSection = document.getElementById("resultsSection");
+    const picCount = document.getElementById("picCount");
 
     function nextPrompt() {
       const available = PROMPTS.filter(p => p !== currentPrompt);
@@ -190,16 +203,14 @@ html_code = """
     startBtn.addEventListener("click", async () => {
       score = 0;
       timeLeft = 60;
-      capturedPhotos = [];
+      snappedPics = [];
       scoreEl.textContent = score;
       timerEl.textContent = timeLeft;
-      dishCount.textContent = "0";
       gallery.innerHTML = "";
       
-      gallerySection.classList.add("hidden");
-      gallery.classList.add("hidden");
-      revealBtn.classList.remove("hidden");
-      resultsTitle.textContent = "Do you want to see the pictures you snapped?";
+      // Reset and hide post-game sections
+      questionBox.classList.add("hidden");
+      resultsSection.classList.add("hidden");
       
       startBtn.classList.add("hidden");
       activeControls.classList.remove("hidden");
@@ -224,7 +235,7 @@ html_code = """
     });
 
     fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0]; // Fixed index [0]
+      const file = e.target.files[0];
       if (!file) return;
       const img = new Image();
       img.onload = () => {
@@ -235,7 +246,3 @@ html_code = """
 
     skipBtn.addEventListener("click", () => {
       timeLeft = Math.max(0, timeLeft - 5);
-      timerEl.textContent = timeLeft;
-      nextPrompt();
-    });
-
