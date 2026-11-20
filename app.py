@@ -46,14 +46,23 @@ html_code = """
     button.success { background: var(--success); color: #052e16; }
     .row { display: flex; gap: 10px; }
     .row > * { flex: 1; }
-    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-    .gallery img { aspect-ratio: 1 / 1; border-radius: 8px; border: 2px solid #44403c; }
     
-    /* NEW: End-of-game prompt styling */
-    .end-prompt-box {
-      background: #1c1917; border: 1px solid #44403c; border-radius: 12px;
-      padding: 14px; text-align: center; display: flex; flex-direction: column; gap: 10px;
+    /* Results Grid */
+    .results-header {
+      font-size: 1.05rem; font-weight: 700; color: var(--accent);
+      text-align: center; margin-bottom: 10px;
     }
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .photo-card {
+      background: #1c1917; border: 1px solid #44403c; border-radius: 10px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .photo-card img { aspect-ratio: 4 / 3; width: 100%; object-fit: cover; }
+    .download-btn {
+      display: block; text-align: center; padding: 8px; background: #44403c;
+      color: #fff; text-decoration: none; font-size: 0.8rem; font-weight: 600;
+    }
+    .download-btn:hover { background: var(--accent); }
   </style>
 </head>
 <body>
@@ -71,7 +80,7 @@ html_code = """
       <div class="prompt-text" id="promptText">Press Start to Hunt!</div>
     </div>
 
-    <div class="viewfinder">
+    <div class="viewfinder" id="viewfinderBox">
       <video id="video" autoplay playsinline class="hidden"></video>
       <canvas id="canvas" class="hidden"></canvas>
       <div id="placeholder" style="color: var(--muted); text-align: center; padding: 20px;">
@@ -98,19 +107,11 @@ html_code = """
       </div>
     </div>
 
-    <!-- NEW: Post-game question prompt -->
-    <div id="reviewPromptBox" class="end-prompt-box hidden">
-      <div style="font-weight: 700; font-size: 1.05rem;">Do you want to see the pictures you snapped?</div>
-      <div class="row">
-        <button id="showGalleryBtn" class="success">Yes, Show Results</button>
-        <button id="hideGalleryBtn" class="secondary">No Thanks</button>
-      </div>
-    </div>
-
-    <!-- UPDATED: Hidden during active gameplay -->
+    <!-- End-of-game Results Section -->
     <div id="gallerySection" class="hidden">
-      <div class="prompt-label">Captured Dishes (<span id="dishCount">0</span>)</div>
-      <div class="gallery" id="gallery"></div>
+      <div class="results-header" id="resultsTitle">Do you want to see the pictures you snapped?</div>
+      <button id="revealBtn" class="success" style="width: 100%; margin-bottom: 12px;">👀 View Pictures I Clicked (<span id="dishCount">0</span>)</button>
+      <div class="gallery hidden" id="gallery"></div>
     </div>
   </div>
 
@@ -127,7 +128,7 @@ html_code = """
     let timerInterval = null;
     let currentPrompt = "";
     let stream = null;
-    let capturedCount = 0;
+    let capturedPhotos = []; // Stores actual image data URLs
 
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
@@ -145,13 +146,10 @@ html_code = """
     const retakeBtn = document.getElementById("retakeBtn");
     const claimBtn = document.getElementById("claimBtn");
     const fileInput = document.getElementById("fileInput");
-
-    // NEW element references
-    const reviewPromptBox = document.getElementById("reviewPromptBox");
-    const showGalleryBtn = document.getElementById("showGalleryBtn");
-    const hideGalleryBtn = document.getElementById("hideGalleryBtn");
     const gallerySection = document.getElementById("gallerySection");
+    const revealBtn = document.getElementById("revealBtn");
     const dishCount = document.getElementById("dishCount");
+    const resultsTitle = document.getElementById("resultsTitle");
 
     function nextPrompt() {
       const available = PROMPTS.filter(p => p !== currentPrompt);
@@ -192,15 +190,16 @@ html_code = """
     startBtn.addEventListener("click", async () => {
       score = 0;
       timeLeft = 60;
-      capturedCount = 0;
+      capturedPhotos = [];
       scoreEl.textContent = score;
       timerEl.textContent = timeLeft;
-      dishCount.textContent = capturedCount;
+      dishCount.textContent = "0";
       gallery.innerHTML = "";
       
-      // Hide end-game boxes when starting a new round
-      reviewPromptBox.classList.add("hidden");
       gallerySection.classList.add("hidden");
+      gallery.classList.add("hidden");
+      revealBtn.classList.remove("hidden");
+      resultsTitle.textContent = "Do you want to see the pictures you snapped?";
       
       startBtn.classList.add("hidden");
       activeControls.classList.remove("hidden");
@@ -225,7 +224,7 @@ html_code = """
     });
 
     fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files[0]; // Fixed index [0]
       if (!file) return;
       const img = new Image();
       img.onload = () => {
@@ -240,4 +239,3 @@ html_code = """
       nextPrompt();
     });
 
-    retakeBtn.addEventListener("click", () => {
